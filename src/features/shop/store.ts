@@ -22,6 +22,7 @@ export type CatalogItem = {
   item_group?: string;
   brand?: string;
   stock_uom?: string;
+  description?: string | null;
   thumbnail?: string | null;
   website_image?: string | null;
   price_list_rate?: number | null;

@@ -14,23 +14,13 @@ import {
 import { AppHeader } from '@/components/app-header';
 import { CustomerPickerSheet } from '@/components/customer-picker-sheet';
 import { Brand } from '@/constants/theme';
+import { CartBar } from '@/features/shop/components/CartBar';
 import { CartSheet } from '@/features/shop/components/CartSheet';
-import { ItemCard } from '@/features/shop/components/ItemCard';
+import { ProductCard } from '@/features/shop/components/ProductCard';
+import { ProductSheet } from '@/features/shop/components/ProductSheet';
 import { Toast } from '@/features/shop/components/Toast';
+import type { CatalogItem } from '@/features/shop/store';
 import { useShop } from '@/features/shop/store';
-
-function CartButton({ count, onPress }: { count: number; onPress: () => void }) {
-  return (
-    <Pressable style={hdr.cartBtn} onPress={onPress} hitSlop={8}>
-      <Ionicons name="cart-outline" size={20} color="#fff" />
-      {count > 0 ? (
-        <View style={hdr.badge}>
-          <Text style={hdr.badgeText}>{count}</Text>
-        </View>
-      ) : null}
-    </Pressable>
-  );
-}
 
 export default function ShopScreen() {
   const {
@@ -55,18 +45,17 @@ export default function ShopScreen() {
 
   const [cartOpen, setCartOpen] = useState(false);
   const [impOpen, setImpOpen] = useState(false);
+  const [selected, setSelected] = useState<CatalogItem | null>(null);
 
   useEffect(() => {
     bootstrap();
   }, [bootstrap]);
 
-  // Debounce the search box → reload items 250ms after typing stops.
   useEffect(() => {
     const t = setTimeout(() => loadItems(), 250);
     return () => clearTimeout(t);
   }, [filters.search, loadItems]);
 
-  // qty-in-cart lookup so item cards can show steppers
   const qtyByCode = useMemo(() => {
     const m: Record<string, number> = {};
     for (const l of cart?.items ?? []) m[l.item_code] = l.qty;
@@ -78,11 +67,7 @@ export default function ShopScreen() {
 
   return (
     <View style={styles.root}>
-      <AppHeader
-        title="Shop"
-        subtitle="Karen Roses"
-        right={<CartButton count={cart?.item_count ?? 0} onPress={() => setCartOpen(true)} />}
-      />
+      <AppHeader title="Shop" subtitle="Browse & order fresh stems" />
 
       {/* Staff impersonation bar */}
       {isStaff ? (
@@ -90,7 +75,7 @@ export default function ShopScreen() {
           <Ionicons name="eye-outline" size={16} color={Brand.maroon} />
           <Text style={styles.impText} numberOfLines={1}>
             {impersonate || ctx?.customer
-              ? `Viewing as: ${ctx?.customer_name || impersonate || ctx?.customer}`
+              ? `Shopping for: ${ctx?.customer_name || impersonate || ctx?.customer}`
               : 'Pick a customer to shop'}
           </Text>
           <Ionicons name="chevron-down" size={15} color={Brand.maroon} />
@@ -113,25 +98,24 @@ export default function ShopScreen() {
 
       {/* Category chips */}
       {categories.length > 0 ? (
-        <View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.chips}>
-            <Chip label="All" active={!filters.category} onPress={() => setCategory(null)} />
-            {categories.map((c) => (
-              <Chip
-                key={c.item_group}
-                label={`${c.item_group} (${c.cnt})`}
-                active={filters.category === c.item_group}
-                onPress={() => setCategory(c.item_group)}
-              />
-            ))}
-          </ScrollView>
-        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.chipsRow}
+          contentContainerStyle={styles.chips}>
+          <Chip label="All" active={!filters.category} onPress={() => setCategory(null)} />
+          {categories.map((c) => (
+            <Chip
+              key={c.item_group}
+              label={`${c.item_group} (${c.cnt})`}
+              active={filters.category === c.item_group}
+              onPress={() => setCategory(c.item_group)}
+            />
+          ))}
+        </ScrollView>
       ) : null}
 
-      {/* Catalog */}
+      {/* Catalog grid */}
       {loadingCtx ? (
         <Center>
           <ActivityIndicator color={Brand.green} size="large" />
@@ -145,13 +129,17 @@ export default function ShopScreen() {
         <FlatList
           data={items}
           keyExtractor={(it) => it.name}
-          contentContainerStyle={styles.list}
+          numColumns={2}
+          columnWrapperStyle={styles.column}
+          contentContainerStyle={styles.grid}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             noCustomer ? (
               <View style={styles.banner}>
+                <Ionicons name="information-circle-outline" size={18} color={Brand.maroon} />
                 <Text style={styles.bannerText}>
-                  You're staff — pick a customer above to add items and build their cart.
+                  Pick a customer above to add items and build their cart.
                 </Text>
               </View>
             ) : null
@@ -160,13 +148,14 @@ export default function ShopScreen() {
             loadingItems ? (
               <ActivityIndicator color={Brand.green} style={{ marginTop: 40 }} />
             ) : (
-              <Text style={styles.msg}>No items match.</Text>
+              <Text style={styles.msg}>No items match your search.</Text>
             )
           }
           renderItem={({ item }) => (
-            <ItemCard
+            <ProductCard
               item={item}
               qty={qtyByCode[item.item_code] ?? 0}
+              onOpen={() => setSelected(item)}
               onAdd={() => addToCart(item.item_code, 1)}
               onInc={() => updateQty(item.item_code, (qtyByCode[item.item_code] ?? 0) + 1)}
               onDec={() => updateQty(item.item_code, (qtyByCode[item.item_code] ?? 0) - 1)}
@@ -175,7 +164,9 @@ export default function ShopScreen() {
         />
       )}
 
+      <CartBar onOpen={() => setCartOpen(true)} />
       <Toast />
+      <ProductSheet item={selected} onClose={() => setSelected(null)} />
       <CartSheet visible={cartOpen} onClose={() => setCartOpen(false)} />
       <CustomerPickerSheet
         visible={impOpen}
@@ -199,32 +190,6 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
 function Center({ children }: { children: React.ReactNode }) {
   return <View style={styles.center}>{children}</View>;
 }
-
-const hdr = StyleSheet.create({
-  cartBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: Brand.green,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badge: {
-    position: 'absolute',
-    top: -3,
-    right: -3,
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
-    paddingHorizontal: 4,
-    backgroundColor: Brand.maroon,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: Brand.surface,
-  },
-  badgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
-});
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Brand.bg },
@@ -251,7 +216,8 @@ const styles = StyleSheet.create({
     borderColor: Brand.border,
   },
   search: { flex: 1, fontSize: 14.5, color: Brand.text },
-  chips: { paddingHorizontal: 16, paddingVertical: 12, gap: 8 },
+  chipsRow: { flexGrow: 0, marginTop: 12 },
+  chips: { paddingHorizontal: 16, gap: 8 },
   chip: {
     paddingHorizontal: 13,
     paddingVertical: 7,
@@ -263,14 +229,18 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: Brand.green, borderColor: Brand.green },
   chipText: { fontSize: 12.5, color: Brand.text2, fontWeight: '500' },
   chipTextActive: { color: '#fff' },
-  list: { paddingHorizontal: 16, paddingBottom: 24, gap: 10 },
+  grid: { padding: 16, paddingBottom: 96, gap: 14 },
+  column: { gap: 14 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 },
   msg: { color: Brand.text3, fontSize: 14, textAlign: 'center', marginTop: 30 },
   banner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     backgroundColor: Brand.maroonSoft,
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 12,
-    marginBottom: 10,
+    marginBottom: 14,
   },
-  bannerText: { color: Brand.maroon, fontSize: 12.5, lineHeight: 18 },
+  bannerText: { flex: 1, color: Brand.maroon, fontSize: 12.5, lineHeight: 18 },
 });
