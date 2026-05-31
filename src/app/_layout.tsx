@@ -1,7 +1,9 @@
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { Stack } from 'expo-router';
 import { ActivityIndicator, useColorScheme, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import 'react-native-reanimated';
 
 import { Brand } from '@/constants/theme';
 import { AuthProvider, useAuth } from '@/lib/auth';
