@@ -216,8 +216,8 @@ const styles = StyleSheet.create({
     borderColor: Brand.border,
   },
   search: { flex: 1, fontSize: 14.5, color: Brand.text },
-  chipsRow: { flexGrow: 0, marginTop: 12, marginBottom: 18 },
-  chips: { paddingHorizontal: 16 },
+  chipsRow: { flexGrow: 0, height: 64, marginTop: 8 },
+  chips: { paddingHorizontal: 16, paddingVertical: 12 },
   chip: {
     height: 40,
     paddingHorizontal: 16,
