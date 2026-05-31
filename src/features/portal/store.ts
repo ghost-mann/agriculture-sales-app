@@ -55,7 +55,8 @@ type PortalState = {
   getDoc: (kind: Kind, name: string) => Promise<any>;
   loadClaimMessages: (name: string) => Promise<ClaimMessage[]>;
   replyToClaim: (name: string, content: string) => Promise<void>;
-  replyToMessage: (name: string, content: string) => Promise<void>;
+  loadMessageThread: () => Promise<ClaimMessage[]>;
+  sendMessage: (content: string) => Promise<void>;
 };
 
 const emptyLists = (): Record<Kind, ListState> => ({
@@ -142,10 +143,26 @@ export const usePortal = create<PortalState>((set, get) => ({
     await apiPost(C('reply_to_claim'), { ...(im ? { customer: im } : {}), name, content: html });
   },
 
-  async replyToMessage(name, content) {
+  // Whole customer↔team conversation as a thread (oldest first), reusing the
+  // ClaimMessage shape that <Thread/> renders.
+  async loadMessageThread() {
+    const im = get().impersonate;
+    const rows = (await apiGet(C('list_messages'), im ? { customer: im } : {})) || [];
+    return (rows as any[])
+      .map((r) => ({
+        name: r.name,
+        sender: r.sender,
+        sender_full_name: r.sender_full_name,
+        content: r.content,
+        communication_date: r.communication_date,
+        sent_or_received: r.sent_or_received,
+      }))
+      .sort((a, b) => String(a.communication_date).localeCompare(String(b.communication_date)));
+  },
+
+  async sendMessage(content) {
     const im = get().impersonate;
     const html = String(content || '').trim().replace(/\n/g, '<br>');
-    await apiPost(C('reply_to_message'), { ...(im ? { customer: im } : {}), name, content: html });
-    get().loadList('messages');
+    await apiPost(C('send_message'), { ...(im ? { customer: im } : {}), content: html });
   },
 }));

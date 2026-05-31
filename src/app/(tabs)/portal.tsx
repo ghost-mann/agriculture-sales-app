@@ -7,6 +7,7 @@ import { CustomerPickerSheet } from '@/components/customer-picker-sheet';
 import { Brand } from '@/constants/theme';
 import { Detail } from '@/features/portal/components/Detail';
 import { Home } from '@/features/portal/components/Home';
+import { PortalMessages } from '@/features/portal/components/PortalMessages';
 import { SectionList } from '@/features/portal/components/SectionList';
 import type { Kind } from '@/features/portal/store';
 import { usePortal } from '@/features/portal/store';
@@ -93,6 +94,9 @@ export default function PortalTab() {
           <Ionicons name="people-outline" size={36} color={Brand.text3} />
           <Text style={styles.msg}>Pick a customer above to view their orders, claims and invoices.</Text>
         </Center>
+      ) : nav.view === 'list' && nav.kind === 'messages' ? (
+        // Messages are a two-way conversation, not a list of separate docs.
+        <PortalMessages />
       ) : nav.view === 'list' ? (
         // The list is a FlatList (its own scroller) — must NOT sit inside a
         // ScrollView, or RN warns about nested VirtualizedLists.

@@ -4,10 +4,11 @@ import { apiGet } from '@/lib/api';
 
 const M = (m: string) => `customer_portal.api.crm.${m}`;
 
-export type Section = 'overview' | 'leads' | 'opps' | 'prosp' | 'cust' | 'evt' | 'act';
+export type Section = 'overview' | 'mail' | 'leads' | 'opps' | 'prosp' | 'cust' | 'evt' | 'act';
 
 export const SECTIONS: { key: Section; label: string; method: string }[] = [
   { key: 'overview', label: 'Overview', method: 'crm_dashboard_overview' },
+  { key: 'mail', label: 'Mail', method: '' }, // self-managed (crm_mail_data); see Mail.tsx
   { key: 'leads', label: 'Leads', method: 'crm_dashboard_leads' },
   { key: 'opps', label: 'Opportunities', method: 'crm_dashboard_opportunities' },
   { key: 'prosp', label: 'Prospects', method: 'crm_dashboard_prospects' },
@@ -44,6 +45,7 @@ export const useCrm = create<CrmState>((set, get) => ({
   },
 
   async load(s, force = false) {
+    if (s === 'mail') return; // Mail.tsx fetches crm_mail_data itself
     const existing = get().byKey[s];
     if (existing?.data && !force) return; // cache; sections rarely change mid-session
     const method = SECTIONS.find((x) => x.key === s)!.method;

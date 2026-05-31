@@ -45,6 +45,20 @@ export function statusTone(s?: string | null): { bg: string; fg: string } {
   return { bg: Brand.surface2, fg: Brand.text2 };
 }
 
+// Render Frappe HTML email/message bodies as plain text for native display.
+export function stripHtml(s?: string | null): string {
+  return String(s || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li)>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 export function initials(s?: string | null): string {
   if (!s) return '?';
   const parts = String(s)

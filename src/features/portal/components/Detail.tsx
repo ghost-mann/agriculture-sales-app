@@ -56,7 +56,9 @@ function summaryFields(kind: Kind, d: any): { label: string; value: any }[] {
 }
 
 export function Detail({ kind, name }: { kind: Kind; name: string }) {
-  const { getDoc, loadClaimMessages, replyToClaim, replyToMessage } = usePortal();
+  // Messages have their own conversation screen (PortalMessages); Detail only
+  // handles orders / shipments / invoices / claims.
+  const { getDoc, loadClaimMessages, replyToClaim } = usePortal();
   const [doc, setDoc] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
 
@@ -64,9 +66,6 @@ export function Detail({ kind, name }: { kind: Kind; name: string }) {
     let alive = true;
     setDoc(null);
     setErr(null);
-    // Messages render their content through the Thread directly, so only fetch
-    // the document here for the non-message kinds.
-    if (kind === 'messages') return;
     getDoc(kind, name)
       .then((d) => alive && setDoc(d))
       .catch((e) => alive && setErr(e?.message || 'Could not load.'));
@@ -74,31 +73,6 @@ export function Detail({ kind, name }: { kind: Kind; name: string }) {
       alive = false;
     };
   }, [kind, name, getDoc]);
-
-  // ── Messages: show the email as a bubble + reply composer ──
-  if (kind === 'messages') {
-    return (
-      <View style={{ gap: 16 }}>
-        <Thread
-          emptyHint="No message content."
-          load={async () => {
-            const d = await getDoc('messages', name);
-            return [
-              {
-                name: d.name,
-                sender: d.sender,
-                sender_full_name: d.sender_full_name,
-                content: d.content,
-                communication_date: d.communication_date,
-                sent_or_received: d.sent_or_received,
-              },
-            ];
-          }}
-          send={(c) => replyToMessage(name, c)}
-        />
-      </View>
-    );
-  }
 
   if (err) return <Text style={styles.msg}>{err}</Text>;
   if (!doc) return <ActivityIndicator color={Brand.green} style={{ marginTop: 40 }} />;

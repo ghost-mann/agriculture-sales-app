@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 
 import { AppHeader } from '@/components/app-header';
 import { Brand } from '@/constants/theme';
+import { Mail } from '@/features/crm/components/Mail';
 import { Overview } from '@/features/crm/components/Overview';
 import { SectionView } from '@/features/crm/components/SectionView';
 import { SECTIONS, useCrm } from '@/features/crm/store';
@@ -42,7 +43,10 @@ export default function CrmTab() {
         </ScrollView>
       </View>
 
-      {state?.loading && !state?.data ? (
+      {section === 'mail' ? (
+        // Mail has its own folders + FlatList, so it must not sit in a ScrollView.
+        <Mail />
+      ) : state?.loading && !state?.data ? (
         <Center>
           <ActivityIndicator color={Brand.maroon} size="large" />
         </Center>

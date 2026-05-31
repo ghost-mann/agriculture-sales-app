@@ -9,18 +9,8 @@ import {
 } from 'react-native';
 
 import { Brand } from '@/constants/theme';
-import { fmtDateTime } from '@/lib/format';
+import { fmtDateTime, stripHtml } from '@/lib/format';
 import type { ClaimMessage } from '../store';
-
-function stripHtml(s?: string): string {
-  return String(s || '')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|div)>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .trim();
-}
 
 /**
  * Two-way conversation thread reused for claims and account-manager messages.
