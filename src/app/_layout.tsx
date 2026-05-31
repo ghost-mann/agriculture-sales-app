@@ -27,7 +27,8 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" />
       </Stack.Protected>
       <Stack.Protected guard={!authed}>
-        <Stack.Screen name="login" />
+        <Stack.Screen name="(public)" />
+        <Stack.Screen name="login" options={{ presentation: 'card' }} />
       </Stack.Protected>
     </Stack>
   );

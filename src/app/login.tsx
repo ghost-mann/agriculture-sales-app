@@ -1,3 +1,5 @@
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -18,6 +20,7 @@ import { useAuth } from '@/lib/auth';
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
@@ -39,8 +42,17 @@ export default function LoginScreen() {
     }
   }
 
+  function goBack() {
+    if (router.canGoBack()) router.back();
+    else router.replace('/');
+  }
+
   return (
     <SafeAreaView style={styles.safe}>
+      <Pressable style={styles.back} onPress={goBack} hitSlop={8}>
+        <Ionicons name="chevron-back" size={22} color={Brand.text2} />
+        <Text style={styles.backText}>Back to site</Text>
+      </Pressable>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -117,6 +129,8 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Brand.bg },
+  back: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 12, paddingVertical: 10 },
+  backText: { color: Brand.text2, fontSize: 15, fontWeight: '500' },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: 24, gap: 28 },
   brandWrap: { alignItems: 'center', gap: 10 },
   logo: {
