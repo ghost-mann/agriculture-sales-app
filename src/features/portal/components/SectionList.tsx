@@ -72,7 +72,7 @@ export function SectionList({ kind, onOpen }: { kind: Kind; onOpen: (name: strin
     <FlatList
       data={state.rows}
       keyExtractor={(r) => r.name}
-      contentContainerStyle={{ gap: 8, paddingBottom: 24 }}
+      contentContainerStyle={{ gap: 8, padding: 16, paddingBottom: 32 }}
       ListEmptyComponent={<Text style={styles.msg}>Nothing here yet.</Text>}
       renderItem={({ item: r }) => {
         const v = rowOf(kind, r);

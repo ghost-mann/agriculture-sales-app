@@ -93,13 +93,14 @@ export default function PortalTab() {
           <Ionicons name="people-outline" size={36} color={Brand.text3} />
           <Text style={styles.msg}>Pick a customer above to view their orders, claims and invoices.</Text>
         </Center>
+      ) : nav.view === 'list' ? (
+        // The list is a FlatList (its own scroller) — must NOT sit inside a
+        // ScrollView, or RN warns about nested VirtualizedLists.
+        <SectionList kind={nav.kind} onOpen={(name) => setNav({ view: 'detail', kind: nav.kind, name })} />
       ) : (
         <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
           {nav.view === 'home' ? <Home onOpen={open} /> : null}
           {nav.view === 'account' ? <AccountView /> : null}
-          {nav.view === 'list' ? (
-            <SectionList kind={nav.kind} onOpen={(name) => setNav({ view: 'detail', kind: nav.kind, name })} />
-          ) : null}
           {nav.view === 'detail' ? <Detail kind={nav.kind} name={nav.name} /> : null}
         </ScrollView>
       )}
