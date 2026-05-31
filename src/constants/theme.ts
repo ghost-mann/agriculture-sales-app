@@ -63,3 +63,36 @@ export const Spacing = {
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
+
+/**
+ * Karen Roses brand palette — mirrors the web app's design tokens
+ * (Frontend/shared/theme.css) so the native app stays visually consistent with
+ * the customer portal / webshop / CRM it shares a backend with.
+ */
+export const Brand = {
+  green: '#3a5a48',
+  greenDark: '#2c4537',
+  greenSoft: '#e8efe9',
+  maroon: '#7a1f2b',
+  maroonSoft: '#f3e3e5',
+  gold: '#c9a96e',
+
+  bg: '#fafaf7',
+  surface: '#ffffff',
+  surface2: '#f4f2ec',
+  border: '#e3e0d6',
+  border2: '#cdc9bd',
+
+  text: '#1a1a1a',
+  text2: '#5a5852',
+  text3: '#8e8b80',
+
+  good: '#2d6a4f',
+  goodSoft: '#e6f0ea',
+  bad: '#b42318',
+  badSoft: '#fbe5e7',
+  warn: '#9a6700',
+  warnSoft: '#faf0d0',
+  info: '#175cd3',
+  infoSoft: '#e0eaff',
+} as const;
