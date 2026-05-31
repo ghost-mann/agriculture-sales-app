@@ -12,10 +12,12 @@ import { useShop } from '../store';
 export function ProductSheet({ item, onClose }: { item: CatalogItem | null; onClose: () => void }) {
   const { addToCart, cart } = useShop();
   const [qty, setQty] = useState(1);
+  const [imgFailed, setImgFailed] = useState(false);
 
-  // reset the quantity selector each time a new product opens
+  // reset the quantity selector + image state each time a new product opens
   useEffect(() => {
     setQty(1);
+    setImgFailed(false);
   }, [item?.item_code]);
 
   if (!item) return null;
@@ -39,8 +41,14 @@ export function ProductSheet({ item, onClose }: { item: CatalogItem | null; onCl
 
         <ScrollView contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
           <View style={styles.imageWrap}>
-            {img ? (
-              <Image source={{ uri: img }} style={styles.img} contentFit="cover" transition={150} />
+            {img && !imgFailed ? (
+              <Image
+                source={{ uri: img }}
+                style={styles.img}
+                contentFit="cover"
+                transition={150}
+                onError={() => setImgFailed(true)}
+              />
             ) : (
               <Ionicons name="flower-outline" size={56} color={Brand.text3} />
             )}

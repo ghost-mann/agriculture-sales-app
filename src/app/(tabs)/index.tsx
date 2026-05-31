@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   },
   search: { flex: 1, fontSize: 14.5, color: Brand.text },
   chipsRow: { flexGrow: 0, marginTop: 14, marginBottom: 6 },
-  chips: { paddingHorizontal: 16, paddingVertical: 6, gap: 8, alignItems: 'center' },
+  chips: { paddingHorizontal: 16, paddingVertical: 6, gap: 8 },
   chip: {
     paddingHorizontal: 15,
     paddingVertical: 9,

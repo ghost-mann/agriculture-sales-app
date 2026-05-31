@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Brand } from '@/constants/theme';
@@ -21,12 +21,19 @@ type Props = {
 function ProductCardBase({ item, qty, onOpen, onAdd, onInc, onDec }: Props) {
   const img = imageUrl(item.thumbnail || item.website_image);
   const price = item.price_list_rate;
+  const [imgFailed, setImgFailed] = useState(false);
 
   return (
     <Pressable style={styles.card} onPress={onOpen}>
       <View style={styles.imageWrap}>
-        {img ? (
-          <Image source={{ uri: img }} style={styles.img} contentFit="cover" transition={150} />
+        {img && !imgFailed ? (
+          <Image
+            source={{ uri: img }}
+            style={styles.img}
+            contentFit="cover"
+            transition={150}
+            onError={() => setImgFailed(true)}
+          />
         ) : (
           <View style={styles.placeholder}>
             <Ionicons name="flower-outline" size={30} color={Brand.text3} />
