@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -20,7 +21,15 @@ function initials(s?: string | null): string {
  * chip that opens a sign-out prompt. Staff get a small "STAFF" marker so it's
  * obvious which kind of session they're in.
  */
-export function AppHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+export function AppHeader({
+  title,
+  subtitle,
+  right,
+}: {
+  title: string;
+  subtitle?: string;
+  right?: ReactNode;
+}) {
   const { identity, signOut } = useAuth();
   const name = identity?.fullName || identity?.user || '';
 
@@ -38,6 +47,7 @@ export function AppHeader({ title, subtitle }: { title: string; subtitle?: strin
           <Text style={styles.title}>{title}</Text>
           {subtitle ? <Text style={styles.sub}>{subtitle}</Text> : null}
         </View>
+        {right}
         <Pressable style={styles.chip} onPress={onChip} hitSlop={8}>
           {identity?.isStaff ? <Text style={styles.staff}>STAFF</Text> : null}
           <View style={styles.avatar}>
