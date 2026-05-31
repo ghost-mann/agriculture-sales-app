@@ -13,27 +13,62 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Brand } from '@/constants/theme';
-import { useShop } from '../store';
+import { apiGet } from '@/lib/api';
 
-// Staff-only "shop on behalf of a customer" picker (mirrors the web
-// ImpersonatePicker). Threads the chosen customer through every backend call.
-export function ImpersonateSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-  const { customers, loadingCustomers, searchCustomers, setImpersonate, impersonate } = useShop();
+type Customer = {
+  name: string;
+  customer_name?: string;
+  customer_group?: string;
+  territory?: string;
+};
+
+/**
+ * Staff-only "act on behalf of a customer" picker, shared by the Shop and
+ * Portal tabs. Self-contained: it searches customers itself and reports the
+ * chosen account (or null to stop) via onPick; the host decides what that means.
+ */
+export function CustomerPickerSheet({
+  visible,
+  onClose,
+  value,
+  onPick,
+  title = 'Choose a customer',
+}: {
+  visible: boolean;
+  onClose: () => void;
+  value: string | null;
+  onPick: (name: string | null) => void;
+  title?: string;
+}) {
   const [q, setQ] = useState('');
+  const [rows, setRows] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(false);
   const deb = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  async function search(query: string) {
+    setLoading(true);
+    try {
+      const r = await apiGet('customer_portal.api.customer.list_customers', { search: query, limit: 30 });
+      setRows(r || []);
+    } catch {
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
-    if (visible) searchCustomers('');
-  }, [visible, searchCustomers]);
+    if (visible) search('');
+  }, [visible]);
 
   function onChange(v: string) {
     setQ(v);
     if (deb.current) clearTimeout(deb.current);
-    deb.current = setTimeout(() => searchCustomers(v.trim()), 250);
+    deb.current = setTimeout(() => search(v.trim()), 250);
   }
 
   function pick(name: string | null) {
-    setImpersonate(name);
+    onPick(name);
     onClose();
   }
 
@@ -41,7 +76,7 @@ export function ImpersonateSheet({ visible, onClose }: { visible: boolean; onClo
     <Modal visible={visible} animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
       <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
         <View style={styles.header}>
-          <Text style={styles.title}>Shop as customer</Text>
+          <Text style={styles.title}>{title}</Text>
           <Pressable onPress={onClose} hitSlop={10}>
             <Ionicons name="close" size={24} color={Brand.text2} />
           </Pressable>
@@ -60,24 +95,24 @@ export function ImpersonateSheet({ visible, onClose }: { visible: boolean; onClo
           />
         </View>
 
-        {impersonate ? (
+        {value ? (
           <Pressable style={styles.clearRow} onPress={() => pick(null)}>
             <Ionicons name="close-circle-outline" size={18} color={Brand.bad} />
-            <Text style={styles.clearText}>Stop impersonating ({impersonate})</Text>
+            <Text style={styles.clearText}>Clear ({value})</Text>
           </Pressable>
         ) : null}
 
-        {loadingCustomers ? (
+        {loading ? (
           <ActivityIndicator color={Brand.green} style={{ marginTop: 24 }} />
         ) : (
           <FlatList
-            data={customers}
+            data={rows}
             keyExtractor={(c) => c.name}
             contentContainerStyle={{ padding: 12, gap: 8 }}
             ListEmptyComponent={<Text style={styles.empty}>No customers match.</Text>}
             renderItem={({ item: c }) => (
               <Pressable
-                style={[styles.row, impersonate === c.name && styles.rowActive]}
+                style={[styles.row, value === c.name && styles.rowActive]}
                 onPress={() => pick(c.name)}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.rowName}>{c.customer_name || c.name}</Text>
@@ -85,7 +120,7 @@ export function ImpersonateSheet({ visible, onClose }: { visible: boolean; onClo
                     {[c.name, c.customer_group, c.territory].filter(Boolean).join(' · ')}
                   </Text>
                 </View>
-                {impersonate === c.name ? (
+                {value === c.name ? (
                   <Ionicons name="checkmark-circle" size={20} color={Brand.green} />
                 ) : null}
               </Pressable>

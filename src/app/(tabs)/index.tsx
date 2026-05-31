@@ -12,9 +12,9 @@ import {
 } from 'react-native';
 
 import { AppHeader } from '@/components/app-header';
+import { CustomerPickerSheet } from '@/components/customer-picker-sheet';
 import { Brand } from '@/constants/theme';
 import { CartSheet } from '@/features/shop/components/CartSheet';
-import { ImpersonateSheet } from '@/features/shop/components/ImpersonateSheet';
 import { ItemCard } from '@/features/shop/components/ItemCard';
 import { Toast } from '@/features/shop/components/Toast';
 import { useShop } from '@/features/shop/store';
@@ -50,6 +50,7 @@ export default function ShopScreen() {
     loadItems,
     addToCart,
     updateQty,
+    setImpersonate,
   } = useShop();
 
   const [cartOpen, setCartOpen] = useState(false);
@@ -176,7 +177,13 @@ export default function ShopScreen() {
 
       <Toast />
       <CartSheet visible={cartOpen} onClose={() => setCartOpen(false)} />
-      <ImpersonateSheet visible={impOpen} onClose={() => setImpOpen(false)} />
+      <CustomerPickerSheet
+        visible={impOpen}
+        onClose={() => setImpOpen(false)}
+        value={impersonate}
+        onPick={(name) => setImpersonate(name)}
+        title="Shop as customer"
+      />
     </View>
   );
 }

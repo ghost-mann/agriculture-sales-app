@@ -1,3 +1,5 @@
+import { Brand } from '@/constants/theme';
+
 import { API_URL } from './config';
 
 // "$1,234.00" for USD, "KES 1,234.00" otherwise. Mirrors the web app's fmtMoney.
@@ -14,6 +16,33 @@ export function imageUrl(path?: string | null): string | null {
   if (!path) return null;
   if (/^https?:\/\//.test(path)) return path;
   return `${API_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
+export function fmtDate(s?: string | null): string {
+  if (!s) return '—';
+  const d = new Date(String(s).replace(' ', 'T'));
+  if (isNaN(d.getTime())) return String(s).slice(0, 10);
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+export function fmtDateTime(s?: string | null): string {
+  if (!s) return '—';
+  const d = new Date(String(s).replace(' ', 'T'));
+  if (isNaN(d.getTime())) return String(s).slice(0, 16);
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${fmtDate(s)} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+// Map an ERPNext status string → a badge tone (bg + fg). Mirrors the web
+// statusClass helper in Frontend/shared/utils.js.
+export function statusTone(s?: string | null): { bg: string; fg: string } {
+  const k = String(s || '').toLowerCase();
+  if (/complet|paid|closed|delivered|resolved/.test(k)) return { bg: Brand.goodSoft, fg: Brand.good };
+  if (k === 'to deliver' || k === 'to bill' || k.includes('partial')) return { bg: Brand.infoSoft, fg: Brand.info };
+  if (/cancel|overdue|rejected|lost|unpaid/.test(k)) return { bg: Brand.badSoft, fg: Brand.bad };
+  if (/draft|submitted|open|review|hold|pending/.test(k)) return { bg: Brand.warnSoft, fg: Brand.warn };
+  return { bg: Brand.surface2, fg: Brand.text2 };
 }
 
 export function initials(s?: string | null): string {

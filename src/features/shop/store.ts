@@ -52,13 +52,6 @@ export type Cart = {
 
 export type Category = { item_group: string; cnt: number };
 
-export type Customer = {
-  name: string;
-  customer_name?: string;
-  customer_group?: string;
-  territory?: string;
-};
-
 type Toast = { kind: 'ok' | 'err' | 'info'; message: string } | null;
 
 const W = (m: string) => `customer_portal.api.webshop.${m}`;
@@ -80,9 +73,6 @@ type ShopState = {
   cart: Cart | null;
   loadingCart: boolean;
 
-  customers: Customer[];
-  loadingCustomers: boolean;
-
   toast: Toast;
 
   // selectors
@@ -100,7 +90,6 @@ type ShopState = {
   updateQty: (item_code: string, qty: number) => Promise<void>;
   clearCart: () => Promise<void>;
   submitQuotation: (notes?: string) => Promise<{ name: string } | null>;
-  searchCustomers: (q: string) => Promise<void>;
 };
 
 let toastTimer: ReturnType<typeof setTimeout> | null = null;
@@ -119,9 +108,6 @@ export const useShop = create<ShopState>((set, get) => ({
 
   cart: null,
   loadingCart: false,
-
-  customers: [],
-  loadingCustomers: false,
 
   toast: null,
 
@@ -272,16 +258,6 @@ export const useShop = create<ShopState>((set, get) => ({
     } catch (e: any) {
       get().setToast({ kind: 'err', message: e?.message || 'Could not submit request' });
       throw e;
-    }
-  },
-
-  async searchCustomers(q) {
-    set({ loadingCustomers: true });
-    try {
-      const r = await apiGet(C('list_customers'), { search: q, limit: 30 });
-      set({ customers: r || [], loadingCustomers: false });
-    } catch {
-      set({ customers: [], loadingCustomers: false });
     }
   },
 }));
