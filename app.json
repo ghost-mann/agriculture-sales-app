@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "karen-roses-app",
-    "slug": "karen-roses-app",
+    "name": "Karen Roses",
+    "slug": "agriculture-sales-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "karenrosesapp",
+    "scheme": "agriculturesalesapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
