@@ -36,7 +36,7 @@ type CrmState = {
 };
 
 export const useCrm = create<CrmState>((set, get) => ({
-  section: 'overview',
+  section: 'mail', // reps land in their inbox — comms is the day-to-day job
   byKey: {},
 
   setSection(s) {
