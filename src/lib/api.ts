@@ -11,7 +11,7 @@
 // X-Frappe-CSRF-Token; on a CSRF failure we refresh once and retry.
 
 import * as SecureStore from 'expo-secure-store';
-import { API_URL } from './config';
+import { API_URL, REQUEST_TIMEOUT_MS, SITE_HOST } from './config';
 
 const SID_KEY = 'frappe_sid';
 const CSRF_KEY = 'frappe_csrf';
@@ -58,8 +58,27 @@ function baseHeaders(): Record<string, string> {
     Accept: 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
   };
+  // Tell Frappe which site to serve when we're connecting by IP (see SITE_HOST).
+  if (SITE_HOST) h.Host = SITE_HOST;
   if (sid) h.Cookie = `sid=${sid}`;
   return h;
+}
+
+// fetch() that aborts after REQUEST_TIMEOUT_MS and reports unreachable backends
+// as a clear error instead of hanging forever.
+async function timedFetch(url: string, init: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (e: any) {
+    if (e?.name === 'AbortError') {
+      throw new Error(`Couldn't reach the server at ${API_URL} (timed out). Check the network / API URL.`);
+    }
+    throw new Error(`Network error reaching ${API_URL}: ${e?.message || e}`);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function isCsrfError(data: any): boolean {
@@ -89,7 +108,7 @@ function finalize(res: Response, data: any) {
 
 export async function login(usr: string, pwd: string): Promise<void> {
   const body = new URLSearchParams({ usr, pwd }).toString();
-  const res = await fetch(`${API_URL}/api/method/login`, {
+  const res = await timedFetch(`${API_URL}/api/method/login`, {
     method: 'POST',
     headers: { ...baseHeaders(), 'Content-Type': 'application/x-www-form-urlencoded' },
     body,
@@ -114,7 +133,7 @@ export async function refreshCsrf(): Promise<void> {
 
 export async function logout(): Promise<void> {
   try {
-    await fetch(`${API_URL}/api/method/logout`, { method: 'GET', headers: baseHeaders() });
+    await timedFetch(`${API_URL}/api/method/logout`, { method: 'GET', headers: baseHeaders() });
   } catch {
     /* clear local session regardless */
   }
@@ -128,7 +147,7 @@ export async function apiGet(method: string, params: Record<string, any> = {}): 
   const qs = new URLSearchParams();
   for (const k in params) if (params[k] != null) qs.append(k, String(params[k]));
   const url = `${API_URL}/api/method/${method}${qs.toString() ? `?${qs}` : ''}`;
-  const res = await fetch(url, { method: 'GET', headers: baseHeaders() });
+  const res = await timedFetch(url, { method: 'GET', headers: baseHeaders() });
   return finalize(res, await parse(res));
 }
 
@@ -143,7 +162,7 @@ async function rawPost(method: string, args: Record<string, any>) {
     'Content-Type': 'application/x-www-form-urlencoded',
   };
   if (csrf) headers['X-Frappe-CSRF-Token'] = csrf;
-  const res = await fetch(`${API_URL}/api/method/${method}`, {
+  const res = await timedFetch(`${API_URL}/api/method/${method}`, {
     method: 'POST',
     headers,
     body: body.toString(),

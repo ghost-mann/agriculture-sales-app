@@ -45,19 +45,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIdentity(toIdentity(ctx));
   }
 
-  // On launch, restore any persisted session and validate it.
+  // On launch, restore any persisted session and validate it. Whatever happens
+  // (SecureStore error, unreachable backend, expired session), we MUST flip
+  // `ready` so the app leaves the loading spinner — hence the finally.
   useEffect(() => {
     (async () => {
-      await api.loadSession();
-      if (api.hasSession()) {
-        try {
-          await loadIdentity();
-        } catch {
-          await api.logout(); // stale/expired session → force re-login
-          setIdentity(null);
+      try {
+        await api.loadSession();
+        if (api.hasSession()) {
+          try {
+            await loadIdentity();
+          } catch {
+            await api.logout(); // stale/expired/unreachable → force re-login
+            setIdentity(null);
+          }
         }
+      } finally {
+        setReady(true);
       }
-      setReady(true);
     })();
   }, []);
 
