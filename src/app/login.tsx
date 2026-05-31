@@ -102,6 +102,10 @@ export default function LoginScreen() {
             </Pressable>
           </View>
 
+          <Text style={styles.help}>
+            Trouble signing in? Contact your account manager.
+          </Text>
+
           <Text style={styles.host} numberOfLines={1}>
             {API_URL.replace(/^https?:\/\//, '')}
           </Text>
@@ -172,5 +176,6 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: { opacity: 0.5 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  help: { textAlign: 'center', fontSize: 13, color: Brand.text2, lineHeight: 18 },
   host: { textAlign: 'center', fontSize: 11, color: Brand.text3 },
 });

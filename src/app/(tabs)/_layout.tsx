@@ -32,9 +32,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="portal"
         options={{
-          title: 'Portal',
+          title: 'My Account',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="grid-outline" color={color} size={size} />
+            <Ionicons name="person-circle-outline" color={color} size={size} />
           ),
         }}
       />

@@ -38,9 +38,9 @@ export default function PortalTab() {
   const isStaff = !!ctx?.is_staff;
   const title =
     nav.view === 'home'
-      ? 'Portal'
+      ? 'My Account'
       : nav.view === 'account'
-        ? 'Account'
+        ? 'Company details'
         : nav.view === 'list'
           ? KIND_LABEL[nav.kind]
           : nav.name;
@@ -57,7 +57,7 @@ export default function PortalTab() {
 
   return (
     <View style={styles.root}>
-      <AppHeader title={title} subtitle={nav.view === 'home' ? 'Your account' : undefined} />
+      <AppHeader title={title} subtitle={nav.view === 'home' ? 'Orders, claims & messages' : undefined} />
 
       {/* Back bar for nested views */}
       {nav.view !== 'home' ? (

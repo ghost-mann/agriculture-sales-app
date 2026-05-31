@@ -13,8 +13,8 @@ export const SECTIONS: { key: Section; label: string; method: string }[] = [
   { key: 'opps', label: 'Opportunities', method: 'crm_dashboard_opportunities' },
   { key: 'prosp', label: 'Prospects', method: 'crm_dashboard_prospects' },
   { key: 'cust', label: 'Customers', method: 'crm_dashboard_customers' },
-  { key: 'evt', label: 'Activity', method: 'crm_dashboard_events_tasks' },
-  { key: 'act', label: 'Log', method: 'crm_dashboard_activity' },
+  { key: 'evt', label: 'Tasks', method: 'crm_dashboard_events_tasks' },
+  { key: 'act', label: 'Activity', method: 'crm_dashboard_activity' },
 ];
 
 function last30(): { date_from: string; date_to: string } {

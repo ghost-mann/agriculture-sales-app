@@ -13,7 +13,7 @@ const TILES: { kind: Kind | 'account'; icon: keyof typeof Ionicons.glyphMap; lab
   { kind: 'claims', icon: 'alert-circle-outline', label: 'Claims' },
   { kind: 'invoices', icon: 'document-text-outline', label: 'Invoices' },
   { kind: 'messages', icon: 'chatbubbles-outline', label: 'Messages' },
-  { kind: 'account', icon: 'business-outline', label: 'Account' },
+  { kind: 'account', icon: 'business-outline', label: 'Company' },
 ];
 
 export function Home({ onOpen }: { onOpen: (kind: Kind | 'account') => void }) {
@@ -22,8 +22,8 @@ export function Home({ onOpen }: { onOpen: (kind: Kind | 'account') => void }) {
 
   const kpis = [
     { label: 'Open orders', value: k?.open_orders, tone: Brand.green },
-    { label: 'In flight', value: k?.in_flight, tone: Brand.info },
-    { label: 'Outstanding', value: k?.overdue, tone: Brand.bad },
+    { label: 'On the way', value: k?.in_flight, tone: Brand.info },
+    { label: 'To pay', value: k?.overdue, tone: Brand.bad },
     { label: 'Open claims', value: k?.open_claims, tone: Brand.maroon },
   ];
 

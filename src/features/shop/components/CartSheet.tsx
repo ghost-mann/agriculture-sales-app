@@ -27,7 +27,10 @@ export function CartSheet({ visible, onClose }: { visible: boolean; onClose: () 
       const r = await submitQuotation();
       onClose();
       if (r?.name) {
-        Alert.alert('Request sent', `Your quotation ${r.name} has been submitted to the team.`);
+        Alert.alert(
+          'Order request sent',
+          `The team will confirm pricing and get back to you soon.\n\nReference: ${r.name}`,
+        );
       }
     } catch {
       /* toast already shown by store */
@@ -112,7 +115,7 @@ export function CartSheet({ visible, onClose }: { visible: boolean; onClose: () 
               {submitting ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.submitText}>Request quotation</Text>
+                <Text style={styles.submitText}>Send order request</Text>
               )}
             </Pressable>
           </View>

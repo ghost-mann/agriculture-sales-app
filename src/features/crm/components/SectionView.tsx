@@ -5,8 +5,28 @@ import { Brand } from '@/constants/theme';
 import { fmtDate } from '@/lib/format';
 import type { Section } from '../store';
 
+// Plain-language names for the terser KPI keys; anything not listed falls back
+// to a title-cased version of the key.
+const KPI_LABELS: Record<string, string> = {
+  conv_rate: 'Conversion %',
+  win_rate: 'Win rate %',
+  to_opp: 'To opportunity',
+  to_quot: 'To quotation',
+  from_prospect: 'From prospects',
+  with_opp: 'With opportunity',
+  to_customer: 'Became customers',
+  this_quarter: 'This quarter',
+  new_30d: 'New (30 days)',
+  emails_sent: 'Emails sent',
+  emails_recv: 'Emails received',
+  tasks_open: 'Open tasks',
+  tasks_high: 'High priority',
+  events_open: 'Open events',
+  events_total: 'Events',
+};
+
 function humanize(key: string): string {
-  return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  return KPI_LABELS[key] || key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function rowOf(section: Section, r: any): { title: string; meta: string; status?: string } {

@@ -72,10 +72,8 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 20, fontWeight: '600', color: Brand.text },
   sub: {
-    fontSize: 10,
-    color: Brand.text3,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    fontSize: 13,
+    color: Brand.text2,
     marginTop: 2,
   },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 8 },
